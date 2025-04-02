@@ -1,0 +1,111 @@
+import pygame
+import numpy as np
+
+# Pygame başlatma
+pygame.init()
+
+# Ekran boyutları
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Kirchhoff Yasaları Simülasyonu")
+
+# Renk tanımları
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+
+# Devre bileşenleri
+class Resistor:
+    def __init__(self, x, y, resistance, label):
+        self.x = x
+        self.y = y
+        self.resistance = resistance
+        self.label = label
+    
+    def draw(self, screen):
+        pygame.draw.rect(screen, RED, (self.x, self.y, 50, 10))
+        font = pygame.font.Font(None, 24)
+        text = font.render(f"{self.label}: {self.resistance}Ω", True, BLACK)
+        screen.blit(text, (self.x, self.y - 20))
+
+class Battery:
+    def __init__(self, x, y, voltage, label):
+        self.x = x
+        self.y = y
+        self.voltage = voltage
+        self.label = label
+    
+    def draw(self, screen):
+        pygame.draw.rect(screen, BLUE, (self.x, self.y, 20, 50))
+        font = pygame.font.Font(None, 24)
+        text = font.render(f"{self.label}: {self.voltage}V", True, BLACK)
+        screen.blit(text, (self.x, self.y + 55))
+
+class Wire:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+    
+    def draw(self, screen):
+        pygame.draw.line(screen, BLACK, self.start, self.end, 3)
+
+# Kirchhoff devre hesaplamaları
+class Circuit:
+    def __init__(self):
+        self.resistors = [Resistor(300, 200, 10, "R1"), Resistor(300, 300, 5, "R2")]
+        self.battery = Battery(150, 250, 12, "V1")
+        self.wires = [
+            Wire((170, 275), (300, 275)),
+            Wire((325, 275), (325, 210)),
+            Wire((325, 310), (325, 400)),
+            Wire((325, 400), (150, 400)),
+            Wire((150, 400), (150, 275))
+        ]
+    
+    def calculate_currents(self):
+        R1, R2 = self.resistors[0].resistance, self.resistors[1].resistance
+        V = self.battery.voltage
+        
+        # Seri devre için akım hesabı: I = V / (R1 + R2)
+        current = V / (R1 + R2)
+        return current
+    
+    def draw(self, screen):
+        for resistor in self.resistors:
+            resistor.draw(screen)
+        self.battery.draw(screen)
+        for wire in self.wires:
+            wire.draw(screen)
+        
+        # Akım bilgisi
+        font = pygame.font.Font(None, 24)
+        current = self.calculate_currents()
+        text = font.render(f"Akım: {current:.2f}A", True, BLACK)
+        screen.blit(text, (400, 50))
+        
+        # Akım yönü
+        pygame.draw.polygon(screen, YELLOW, [(320, 260), (330, 275), (320, 290)])
+        pygame.draw.polygon(screen, YELLOW, [(320, 360), (330, 375), (320, 390)])
+
+# Devre nesnesi oluştur
+circuit = Circuit()
+
+# Ana döngü
+running = True
+while running:
+    screen.fill(WHITE)
+    
+    # Olayları kontrol et
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    
+    # Devreyi çiz
+    circuit.draw(screen)
+    
+    pygame.display.flip()
+
+pygame.quit()
