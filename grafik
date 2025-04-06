@@ -1,0 +1,38 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Toplam gerilim
+V_total = 12
+
+# Direnç değer aralıkları
+R1_values = np.arange(1, 11, 1)  # 1'den 10'a kadar
+R2 = 4
+R3 = 3
+
+# Sonuçları tutacak liste
+data = []
+
+for R1 in R1_values:
+    R_total = R1 + R2 + R3
+    I = V_total / R_total  # Ohm kanununa göre akım
+    V1 = I * R1
+    V2 = I * R2
+    V3 = I * R3
+    data.append({'R1 (Ohm)': R1, 'V1 (V)': V1, 'V2 (V)': V2, 'V3 (V)': V3, 'Toplam Akım (A)': I})
+
+# Pandas DataFrame olarak göster
+df = pd.DataFrame(data)
+print(df)
+
+# Grafik çizimi
+plt.figure(figsize=(10, 6))
+plt.plot(df['R1 (Ohm)'], df['V1 (V)'], label='V1 (R1 Üzerindeki Gerilim)')
+plt.plot(df['R1 (Ohm)'], df['V2 (V)'], label='V2 (R2 Üzerindeki Gerilim)')
+plt.plot(df['R1 (Ohm)'], df['V3 (V)'], label='V3 (R3 Üzerindeki Gerilim)')
+plt.xlabel('R1 Direnci (Ohm)')
+plt.ylabel('Gerilim (V)')
+plt.title('Kirchhoff Gerilim Yasası (KVL) - Gerilim Dağılımı')
+plt.legend()
+plt.grid(True)
+plt.show()
